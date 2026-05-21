@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{846be29d-c28f-4a60-b6d4-53816c457f22}</ProjectGuid>
+    <AssemblyName>ArrayTime Scope Project1</AssemblyName>
+    <Name>Scopes</Name>
+    <RootNamespace>ArrayTime Scope Project1</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Scope Project1.tcscopex">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="P_ReverseSequence" Id="{7df4cd94-6b61-4117-a6d8-fd21758dd9b0}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_ReverseSequence
+VAR
+	fbAxis					: FB_SimpleAxis;
+	bStartSeq				: BOOL := TRUE;
+	bStopSeq				: BOOL;
+	nSeq					: DINT;
+	
+	rand					: DRAND;
+	fAdder					: LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[rand(Seed:=67);
+
+fbAxis();
+IF bStopSeq THEN
+	nSeq := 3;
+END_IF
+
+CASE nSeq OF
+	0:
+		IF bStartSeq AND_THEN fbAxis.Enable() THEN
+			fbAxis.Acceleration := 5000;
+			fbAxis.Deceleration := 5000;
+			fbAxis.Velocity := 2000;
+			bStartSeq := FALSE;
+			nSeq := 1;
+		END_IF
+		
+	1:
+		IF NOT fbAxis.Busy THEN
+			fAdder := rand.Num * 10;
+			fbAxis.Position := SEL(TO_DINT(fAdder) MOD 2 = 0, 1000.0 + fAdder, 1000.0 - fAdder);
+			IF fbAxis.MoveAbsolute() THEN
+				nSeq := 2;
+			END_IF
+		END_IF
+		
+	2:
+		IF NOT fbAxis.Busy THEN
+			fbAxis.Position := 0.0;
+			IF fbAxis.MoveAbsolute() THEN
+				nSeq := 1;
+			END_IF
+		END_IF
+		
+	3:
+		IF bStopSeq THEN
+			fbAxis.Stop();
+			bStopSeq := FALSE;
+		END_IF
+		IF NOT fbAxis.Busy THEN
+			nSeq := 0;
+		END_IF
+		
+END_CASE]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

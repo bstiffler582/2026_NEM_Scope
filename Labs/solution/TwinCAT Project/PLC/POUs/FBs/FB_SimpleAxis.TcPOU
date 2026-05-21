@@ -1,0 +1,608 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_SimpleAxis" Id="{c77f11b7-cf4e-4404-bda8-a6e373482064}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SimpleAxis
+VAR
+    stAxis : AXIS_REF;
+END_VAR
+
+VAR
+    fbMCReadParameterSet : MC_ReadParameterSet;
+    fbMCPower            : MC_Power;
+    fbMCReset            : MC_Reset;
+    fbMCMoveAbsolute     : MC_MoveAbsolute;
+    fbMCMoveRelative     : MC_MoveRelative;
+    fbMCMoveVelocity     : MC_MoveVelocity;
+    fbMCHalt             : MC_Halt;
+    fbMCHome             : MC_Home;
+END_VAR
+
+VAR
+    _Busy         : BOOL;
+    _Error        : BOOL;
+    _ErrorID      : UDINT;
+    _Velocity     : LREAL;
+    _Acceleration : LREAL;
+    _Deceleration : LREAL;
+    _Jerk         : LREAL;
+    _Position     : LREAL;
+    _Distance     : LREAL;
+    _Override     : LREAL        := 100.0;
+    _Direction    : MC_Direction := MC_Direction.MC_Positive_Direction ;
+    _HomeSensor   : BOOL;
+END_VAR
+
+VAR
+    bInitComplete    : BOOL;
+    eState           : E_AxisState;
+    nSequenceState   : UDINT := 0;
+    stAxisParameters : ST_AxisParameterSet;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT Init() THEN
+    //Do not pass go unless init complete
+    RETURN;
+END_IF
+
+Cyclic(); //Cyclical calls to various function blocks
+
+CASE eState OF
+    E_AxisState.eAxisState_Off:
+        ;
+    E_AxisState.eAxisState_Disabling:
+        IF fbMCPower.Error THEN
+            _ErrorID := fbMCPower.ErrorID;
+            eState   := E_AxisState.eAxisState_Error;
+        ELSIF NOT fbMCPower.Status THEN
+            eState := E_AxisState.eAxisState_Off;
+        END_IF
+
+    E_AxisState.eAxisState_Enabling:
+        IF fbMCPower.Error THEN
+            _ErrorID := fbMCPower.ErrorID;
+            eState   := E_AxisState.eAxisState_Error;
+        ELSIF fbMCPower.Status THEN
+            eState := E_AxisState.eAxisState_Idle;
+        END_IF
+
+    E_AxisState.eAxisState_Idle:
+        ;
+
+    E_AxisState.eAxisState_MoveVelocity:
+        IF NOT fbMCMoveVelocity.Busy THEN
+            IF fbMCMoveVelocity.Error THEN
+                _ErrorID := fbMCMoveVelocity.ErrorID;
+                eState   := E_AxisState.eAxisState_Error;
+            END_IF
+
+            fbMCMoveVelocity(Axis := stAxis, Execute := FALSE);
+        END_IF
+
+    E_AxisState.eAxisState_MoveAbsolute:
+        IF NOT fbMCMoveAbsolute.Busy THEN
+            IF fbMCMoveAbsolute.Error THEN
+                _ErrorID := fbMCMoveAbsolute.ErrorID;
+                eState   := E_AxisState.eAxisState_Error;
+            ELSIF fbMCMoveAbsolute.Done THEN
+                eState := E_AxisState.eAxisState_Idle;
+            END_IF
+
+            fbMCMoveAbsolute(Axis := stAxis, Execute := FALSE);
+        END_IF
+
+    E_AxisState.eAxisState_MoveRelative:
+        IF NOT fbMCMoveRelative.Busy THEN
+            IF fbMCMoveRelative.Error THEN
+                _ErrorID := fbMCMoveRelative.ErrorID;
+                eState   := E_AxisState.eAxisState_Error;
+            ELSIF fbMCMoveRelative.Done THEN
+                eState := E_AxisState.eAxisState_Idle;
+            END_IF
+
+            fbMCMoveRelative(Axis := stAxis, Execute := FALSE);
+        END_IF
+
+    E_AxisState.eAxisState_Stopping:
+        IF NOT fbMCHalt.Busy THEN
+            IF fbMCHalt.Error THEN
+                _ErrorID := fbMCHalt.ErrorID;
+                eState   := E_AxisState.eAxisState_Error;
+            ELSIF fbMCHalt.Done THEN
+                eState := E_AxisState.eAxisState_Idle;
+            END_IF
+
+            fbMCHalt(Axis := stAxis, Execute := FALSE);
+        END_IF
+
+    E_AxisState.eAxisState_Homing:
+        //Homing can have its own sequence
+        IF Homing() THEN
+            eState := E_AxisState.eAxisState_Idle;
+        END_IF
+
+    E_AxisState.eAxisState_Error:
+        ;
+
+    E_AxisState.eAxisState_Resetting:
+        //Resetting can have its own sequence
+        IF Resetting() THEN
+            IF stAxis.Status.Disabled THEN
+                eState := E_AxisState.eAxisState_Off;
+            ELSE
+                eState := E_AxisState.eAxisState_Idle;
+            END_IF
+        END_IF
+END_CASE
+
+_Busy  := (eState <> E_AxisState.eAxisState_Idle) AND (eState <> E_AxisState.eAxisState_Off) AND (eState <> E_AxisState.eAxisState_Error);
+_Error := (eState = E_AxisState.eAxisState_Error) OR (eState = E_AxisState.eAxisState_Resetting);]]></ST>
+    </Implementation>
+    <Folder Name="Private Methods" Id="{74ac1887-c1eb-4067-86b9-1580417bc0a2}">
+      <Folder Name="Sequences" Id="{84634393-8aee-496a-812f-2cc9812de4ae}" />
+    </Folder>
+    <Folder Name="Properties" Id="{62920f93-b088-4538-85e5-8a34bfb621f1}" />
+    <Folder Name="Public Methods" Id="{4446fa78-05e8-4b18-88a7-a4e1c9cbf3a2}" />
+    <Property Name="Acceleration" Id="{632873bb-cb2e-49ef-9c5f-3b19f0621e22}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Acceleration : LREAL]]></Declaration>
+      <Get Name="Get" Id="{731d1844-2d3d-458f-aab2-08102d06251f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Acceleration := _Acceleration;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{39543953-017f-47b4-a15a-306c8be3aefc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF Acceleration >= 0 THEN
+    _Acceleration := Acceleration;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Busy" Id="{0eb9743c-5d39-4e18-b2c8-1eaad44156ee}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f318a154-e436-4474-a8dd-ff074403707e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Cyclic" Id="{9d07ae73-2959-4909-8fda-71a596217244}" FolderPath="Private Methods\">
+      <Declaration><![CDATA[METHOD PROTECTED Cyclic : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[stAxis.ReadStatus();
+
+fbMCPower(Axis := stAxis, Override := _Override);
+
+IF fbMCMoveVelocity.CommandAborted THEN
+    fbMCMoveVelocity(Axis := stAxis, Execute := FALSE);
+ELSE
+    fbMCMoveVelocity(Axis := stAxis);
+END_IF
+
+IF fbMCMoveAbsolute.CommandAborted THEN
+    fbMCMoveAbsolute(Axis := stAxis, Execute := FALSE);
+ELSE
+    fbMCMoveAbsolute(Axis := stAxis);
+END_IF
+
+IF fbMCMoveRelative.CommandAborted THEN
+    fbMCMoveRelative(Axis := stAxis, Execute := FALSE);
+ELSE
+    fbMCMoveRelative(Axis := stAxis);
+END_IF
+
+IF fbMCHalt.CommandAborted THEN
+    fbMCHalt(Axis := stAxis, Execute := FALSE);
+ELSE
+    fbMCHalt(Axis := stAxis);
+END_IF
+
+IF fbMCHome.CommandAborted THEN
+    fbMCHome(Axis := stAxis, Execute := FALSE);
+ELSE
+    fbMCHome(Axis := stAxis, bCalibrationCam := _HomeSensor);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Deceleration" Id="{9c91387d-7e93-4657-af9f-e29641ca96b8}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Deceleration : LREAL]]></Declaration>
+      <Get Name="Get" Id="{136a01e1-1b32-4036-9b80-0a84940e1ac6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Deceleration := _Deceleration;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{4a5abbb7-a2bc-4bf6-b08e-bb7dbd3ccfea}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF Deceleration >= 0 THEN
+    _Deceleration := Deceleration;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Direction" Id="{a7c2f0e1-fd14-443c-9ccf-344fed6421e5}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Direction : MC_Direction]]></Declaration>
+      <Get Name="Get" Id="{30ba8010-265e-49a5-99c4-accd1be0fee8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Direction := _Direction;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{eaa1a222-12e0-4b2f-b98b-7608451c0b79}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF (Direction = MC_Direction.MC_Positive_Direction) OR (Direction = MC_Direction.MC_Negative_Direction) THEN
+    _Direction := Direction;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Disable" Id="{124fe0d5-1afb-4f98-8f1c-3beb7712563a}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD PUBLIC Disable : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Busy THEN
+    RETURN;
+END_IF
+
+fbMCPower(Axis := stAxis, Enable := FALSE, Enable_Positive := FALSE, Enable_Positive := FALSE);
+
+_Busy   := TRUE;
+eState  := E_AxisState.eAxisState_Disabling;
+Disable := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Distance" Id="{ee9c75ea-ae2d-4030-a657-2e55dfc5acd2}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Distance : LREAL]]></Declaration>
+      <Get Name="Get" Id="{d44f7cc7-2acc-4591-82c4-837ecec6f1cf}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Distance := _Distance;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b4796a3f-8b46-44cb-8347-d4bd83ec9c13}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Distance := Distance;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Enable" Id="{8db5294b-a4d1-4f2c-a2b2-d7f607371c90}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD PUBLIC Enable : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Busy THEN
+    RETURN;
+END_IF
+
+fbMCPower(Axis := stAxis, Enable := TRUE, Enable_Positive := TRUE, Enable_Negative := TRUE);
+
+_Busy  := TRUE;
+eState := E_AxisState.eAxisState_Enabling;
+Enable := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{a8443d0a-0620-4ca4-b706-fab17fd06032}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8fd314ae-88d7-4f1f-85b6-ef676c491a09}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorID" Id="{6bf39add-7a19-4303-b769-92192fc5543a}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY ErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{6b2c1fc6-24ef-487b-8fb0-6ca5935933ff}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Home" Id="{01d3b3bc-11e4-4619-bd40-f725074681b4}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD PUBLIC Home : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Busy OR stAxis.Status.Disabled THEN
+    RETURN;
+END_IF
+
+_Busy          := TRUE;
+nSequenceState := 0;
+eState         := E_AxisState.eAxisState_Homing;
+Home           := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HomeSensor" Id="{a2941214-b65e-4003-8ae9-08500c3ee050}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY HomeSensor : BOOL]]></Declaration>
+      <Set Name="Set" Id="{441243b0-6603-4133-ba29-89ff0a2a66ec}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_HomeSensor := HomeSensor;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Homing" Id="{9765657a-2cfa-4306-996d-f507120a6f1b}" FolderPath="Private Methods\Sequences\">
+      <Declaration><![CDATA[METHOD PROTECTED Homing : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE nSequenceState OF
+    0:
+        fbMCHome(Axis := stAxis, Execute := TRUE);
+        nSequenceState := nSequenceState + 10;
+
+    10:
+        IF NOT fbMCHome.Busy THEN
+            IF fbMCHome.Error THEN
+                _ErrorID := fbMCHome.ErrorID;
+                eState   := E_AxisState.eAxisState_Error;
+            ELSIF fbMCHome.Done THEN
+                nSequenceState := nSequenceState + 10;
+            END_IF
+
+            fbMCHome(Axis := stAxis, Execute := FALSE);
+        END_IF
+
+    20:
+        _ErrorID := 0;
+        Homing   := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Init" Id="{29357bec-f574-4733-8ec6-c1d8df940122}" FolderPath="Private Methods\Sequences\">
+      <Declaration><![CDATA[METHOD PROTECTED Init : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bInitComplete THEN
+    Init := TRUE;
+    RETURN;
+END_IF
+
+CASE nSequenceState OF
+    0:
+        IF stAxis.NcToPlc.AxisId <> 0 THEN
+            //Wait for NC to finish init
+            nSequenceState := nSequenceState + 10;
+        END_IF
+
+    10:
+        fbMCReadParameterSet(Parameter := stAxisParameters, Axis := stAxis, Execute := TRUE);
+
+        IF NOT fbMCReadParameterSet.Busy THEN
+            IF fbMCReadParameterSet.Error THEN
+                _ErrorID := fbMCReadParameterSet.ErrorID;
+                eState   := E_AxisState.eAxisState_Error;
+            ELSIF fbMCReadParameterSet.Done THEN
+                nSequenceState := nSequenceState + 10;
+            END_IF
+
+            fbMCReadParameterSet(Parameter := stAxisParameters, Axis := stAxis, Execute := FALSE);
+        END_IF
+
+    20:
+        bInitComplete  := TRUE;
+        nSequenceState := 0;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Jerk" Id="{696b53f3-b6b6-40a3-8682-c2a8bcfc151c}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Jerk : LREAL]]></Declaration>
+      <Get Name="Get" Id="{a5b93d9e-85aa-4969-b637-4e37fe909e7a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Jerk := _Jerk;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a2cd7e3e-4878-4210-ba4c-3b3c3a65e534}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF Jerk >= 0 THEN
+    _Jerk := Jerk;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="MoveAbsolute" Id="{80a404a7-3df1-41f4-897b-2bea38663f9d}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD PUBLIC MoveAbsolute : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF stAxis.Status.Homing THEN
+    RETURN;
+END_IF
+
+fbMCMoveAbsolute(Axis         := stAxis,
+                 Execute      := TRUE,
+                 Position     := _Position,
+                 Velocity     := _Velocity,
+                 Acceleration := _Acceleration,
+                 Deceleration := _Deceleration,
+                 Jerk         := _Jerk);
+
+_Busy        := TRUE;
+eState       := E_AxisState.eAxisState_MoveAbsolute;
+MoveAbsolute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveRelative" Id="{393cd9d2-8e18-4cc6-8d18-28d038744344}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD PUBLIC MoveRelative : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF stAxis.Status.Homing THEN
+    RETURN;
+END_IF
+
+fbMCMoveRelative(Axis         := stAxis,
+                 Execute      := TRUE,
+                 Distance     := _Distance,
+                 Velocity     := _Velocity,
+                 Acceleration := _Acceleration,
+                 Deceleration := _Deceleration,
+                 Jerk         := _Jerk);
+
+_Busy        := TRUE;
+eState       := E_AxisState.eAxisState_MoveRelative;
+MoveRelative := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveVelocity" Id="{84e2d9d2-30b9-4917-aee1-d3d043d3cd08}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD PUBLIC MoveVelocity : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF stAxis.Status.Homing THEN
+    RETURN;
+END_IF
+
+fbMCMoveVelocity(Axis         := stAxis,
+                 Execute      := TRUE,
+                 Velocity     := _Velocity,
+                 Acceleration := _Acceleration,
+                 Deceleration := _Deceleration,
+                 Jerk         := _Jerk,
+                 Direction    := _Direction);
+
+_Busy        := TRUE;
+eState       := E_AxisState.eAxisState_MoveVelocity;
+MoveVelocity := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Override" Id="{96f9e065-9555-4cf4-9f7e-479180c877bd}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Override : LREAL]]></Declaration>
+      <Get Name="Get" Id="{2180b951-e253-4bd8-920e-69e09bb19dec}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Override := _Override;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a893aed5-0b33-44e9-9876-3c6a49ba19a0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF Override >= 0 AND Override <= 100 THEN
+    _Override := Override;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Position" Id="{f17b9668-60b9-4ebd-880f-90040ba26dae}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Position : LREAL]]></Declaration>
+      <Get Name="Get" Id="{16c4689d-ef1e-4243-afb9-f71a23e7d9f0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Position := _Position;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f7345217-dd0d-4fbc-9b07-e40defd1816a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Position := Position;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Reset" Id="{56527dd7-9518-4373-ae28-3a279c5501c0}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD PUBLIC Reset : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Busy THEN
+    RETURN;
+ELSIF NOT _Error THEN
+    Reset := TRUE;
+    RETURN;
+END_IF
+
+_Busy          := TRUE;
+nSequenceState := 0;
+eState         := E_AxisState.eAxisState_Resetting;
+Reset          := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Resetting" Id="{d2df2fe6-83df-43df-b09d-81efaee8bd0d}" FolderPath="Private Methods\Sequences\">
+      <Declaration><![CDATA[METHOD PROTECTED Resetting : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE nSequenceState OF
+    0:
+        fbMCReset(Axis := stAxis, Execute := TRUE);
+
+        IF NOT fbMCReset.Busy THEN
+            IF fbMCReset.Error THEN
+                _ErrorID := fbMCReset.ErrorID;
+                eState   := E_AxisState.eAxisState_Error;
+            ELSIF fbMCReset.Done THEN
+                nSequenceState := nSequenceState + 10;
+            END_IF
+
+            fbMCReset(Axis := stAxis, Execute := FALSE);
+        END_IF
+
+    10:
+        _ErrorID  := 0;
+        Resetting := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stop" Id="{3285e7a9-4d90-45d2-a531-84bb3a432038}" FolderPath="Public Methods\">
+      <Declaration><![CDATA[METHOD Stop : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbMCHalt(Axis := stAxis, Execute := TRUE, Deceleration := _Deceleration, Jerk := _Jerk);
+
+_Busy  := TRUE;
+eState := E_AxisState.eAxisState_Stopping;
+Stop   := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Velocity" Id="{1c3aff81-77c2-4e95-aa47-aa0333d653a5}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY Velocity : LREAL]]></Declaration>
+      <Get Name="Get" Id="{1d7e27bd-a379-4455-89d7-98f62e759147}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Velocity := _Velocity;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c589ae73-398a-44e8-b88b-c4cf5683a98d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF Velocity > 0 THEN
+    _Velocity := Velocity;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

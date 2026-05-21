@@ -1,0 +1,161 @@
+<Node>
+  <Title>Scopes</Title>
+  <Expanded>False</Expanded>
+  <FileName></FileName>
+  <Children>
+    <Node>
+      <Title>Scope Project1</Title>
+      <Expanded>False</Expanded>
+      <FileName>C:\repos\2026_NEM_Scope\Labs\solution\Scope Project1.tcscopex</FileName>
+      <Children>
+        <Node>
+          <Title>DataPool</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children>
+            <Node>
+              <Title>ActPos</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>ActVelo</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>AxisState</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>bStartSeq</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>SetPos</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>SetVelo</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+          </Children>
+        </Node>
+        <Node>
+          <Title>YT Chart</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children>
+            <Node>
+              <Title>Axis Group (1)</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children>
+                <Node>
+                  <Title>ActPos</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>SetPos</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
+            </Node>
+            <Node>
+              <Title>Axis Group (2)</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children>
+                <Node>
+                  <Title>AxisState</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
+            </Node>
+          </Children>
+        </Node>
+        <Node>
+          <Title>YT Chart (1)</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children>
+            <Node>
+              <Title>Axis Group</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children>
+                <Node>
+                  <Title>ActVelo</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>SetVelo</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
+            </Node>
+          </Children>
+        </Node>
+        <Node>
+          <Title>Time Marker</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children />
+        </Node>
+        <Node>
+          <Title>Trigger</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children>
+            <Node>
+              <Title>Trigger Group (1)</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children>
+                <Node>
+                  <Title>Stop</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
+            </Node>
+            <Node>
+              <Title>Trigger Group</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children>
+                <Node>
+                  <Title>Start</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
+            </Node>
+          </Children>
+        </Node>
+      </Children>
+    </Node>
+  </Children>
+</Node>

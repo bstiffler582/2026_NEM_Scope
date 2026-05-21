@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="P_ScannerSim" Id="{4629d5e8-cd22-44fe-8c07-be2e1f2e668f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_ScannerSim
+VAR
+	arrScannerIn		: ARRAY[0..63] OF LREAL;
+	arrSet				: ARRAY[0..63] OF LREAL;
+	arrStep				: ARRAY[0..63] OF LREAL;
+	rand				: DRAND;
+	bRun				: BOOL;
+	tmrCycle			: TON;
+	i					: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[tmrCycle(IN:=(NOT tmrCycle.Q), PT:=T#1S);
+IF tmrCycle.Q THEN
+	FOR i := 0 TO 63 DO
+		rand(Seed:=TO_INT(i));
+		arrSet[i] := rand.Num / 2;
+		arrStep[i] := ABS(arrSet[i] - arrScannerIn[i]) / 100;
+	END_FOR
+ELSE
+	FOR i := 0 TO 63 DO
+		arrScannerIn[i] := SEL((arrScannerIn[i] < arrSet[i]), 
+			(arrScannerIn[i] - arrStep[i]), 
+			(arrScannerIn[i] + arrStep[i]));
+	END_FOR
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
