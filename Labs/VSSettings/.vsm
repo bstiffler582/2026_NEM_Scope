@@ -10,7 +10,7 @@
       <Children>
         <Node>
           <Title>DataPool</Title>
-          <Expanded>True</Expanded>
+          <Expanded>False</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
@@ -21,6 +21,12 @@
             </Node>
             <Node>
               <Title>ActVelo</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>arrScannerIn</Title>
               <Expanded>False</Expanded>
               <FileName></FileName>
               <Children />
@@ -59,7 +65,7 @@
         </Node>
         <Node>
           <Title>YT Chart</Title>
-          <Expanded>True</Expanded>
+          <Expanded>False</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
@@ -83,7 +89,7 @@
             </Node>
             <Node>
               <Title>Axis Group (2)</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -104,12 +110,12 @@
         </Node>
         <Node>
           <Title>YT Chart (1)</Title>
-          <Expanded>True</Expanded>
+          <Expanded>False</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
               <Title>Axis Group</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -129,32 +135,33 @@
           </Children>
         </Node>
         <Node>
-          <Title>Time Marker</Title>
-          <Expanded>False</Expanded>
-          <FileName></FileName>
-          <Children />
-        </Node>
-        <Node>
-          <Title>Trigger</Title>
+          <Title>Array-Time Chart</Title>
           <Expanded>True</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
-              <Title>Trigger Group (1)</Title>
+              <Title>Axis Group (3)</Title>
               <Expanded>True</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
-                  <Title>Stop</Title>
+                  <Title>arrScannerIn</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
                 </Node>
               </Children>
             </Node>
+          </Children>
+        </Node>
+        <Node>
+          <Title>Trigger</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children>
             <Node>
-              <Title>Trigger Group (2)</Title>
-              <Expanded>True</Expanded>
+              <Title>nSeq</Title>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -166,8 +173,21 @@
               </Children>
             </Node>
             <Node>
+              <Title>Trigger Group (1)</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children>
+                <Node>
+                  <Title>Stop</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
+            </Node>
+            <Node>
               <Title>Trigger Group</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -179,6 +199,31 @@
               </Children>
             </Node>
           </Children>
+        </Node>
+      </Children>
+    </Node>
+    <Node>
+      <Title>Scope Project2</Title>
+      <Expanded>True</Expanded>
+      <FileName>C:\repos\2026_NEM_Scope\Labs\Scope Project2.tcscopex</FileName>
+      <Children>
+        <Node>
+          <Title>DataPool</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children />
+        </Node>
+        <Node>
+          <Title>YT Chart</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children />
+        </Node>
+        <Node>
+          <Title>Trigger</Title>
+          <Expanded>False</Expanded>
+          <FileName></FileName>
+          <Children />
         </Node>
       </Children>
     </Node>

@@ -3,11 +3,13 @@
   <POU Name="MAIN" Id="{7fea695b-65da-4e2b-9b44-b6cc9f2b09af}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
-	
+
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[P_ReverseSequence();]]></ST>
+      <ST><![CDATA[P_ReverseSequence();
+P_ScopeServer();
+P_ScannerSim();]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>
