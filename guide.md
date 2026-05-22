@@ -90,7 +90,9 @@ We have seen how easy it is to compare *different* channels with a YT chart in S
   - Duration ≈ 4.860s. You can calculate it by subtracting those last two marker times.
 - Zoom in on the last cycle peak position. Change the Echo layer colors to differentiate them.
 
-Observe the previous cycles overlayed with the latest. Imagine a scenario where this could be a helpful analysis or troubleshooting tool.
+Observe the previous cycles overlayed with the latest. Imagine a scenario where this could be a helpful analysis or troubleshooting tool:
+
+<img src="images/echo_layer.png" width="600px"></img>
 
 ## Lab 2 - Scope Server
 
