@@ -5,12 +5,12 @@
   <Children>
     <Node>
       <Title>Scope Project1</Title>
-      <Expanded>False</Expanded>
-      <FileName>C:\repos\2026_NEM_Scope\Labs\solution\Scope Project1.tcscopex</FileName>
+      <Expanded>True</Expanded>
+      <FileName>C:\repos\2026_NEM_Scope\Labs\Scope Project1.tcscopex</FileName>
       <Children>
         <Node>
           <Title>DataPool</Title>
-          <Expanded>False</Expanded>
+          <Expanded>True</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
@@ -27,6 +27,12 @@
             </Node>
             <Node>
               <Title>AxisState</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>nSeq</Title>
               <Expanded>False</Expanded>
               <FileName></FileName>
               <Children />
@@ -53,12 +59,12 @@
         </Node>
         <Node>
           <Title>YT Chart</Title>
-          <Expanded>False</Expanded>
+          <Expanded>True</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
               <Title>Axis Group (1)</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -77,11 +83,17 @@
             </Node>
             <Node>
               <Title>Axis Group (2)</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
                   <Title>AxisState</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>nSeq</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
@@ -92,12 +104,12 @@
         </Node>
         <Node>
           <Title>YT Chart (1)</Title>
-          <Expanded>False</Expanded>
+          <Expanded>True</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
               <Title>Axis Group</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -123,19 +135,13 @@
           <Children />
         </Node>
         <Node>
-          <Title>Time Marker (1)</Title>
-          <Expanded>False</Expanded>
-          <FileName></FileName>
-          <Children />
-        </Node>
-        <Node>
           <Title>Trigger</Title>
-          <Expanded>False</Expanded>
+          <Expanded>True</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
               <Title>Trigger Group (1)</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -147,8 +153,21 @@
               </Children>
             </Node>
             <Node>
+              <Title>Trigger Group (2)</Title>
+              <Expanded>True</Expanded>
+              <FileName></FileName>
+              <Children>
+                <Node>
+                  <Title>Channel Trigger Set</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
+            </Node>
+            <Node>
               <Title>Trigger Group</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>

@@ -8,19 +8,15 @@
 
 ### Agenda
 - Intro / Presentation
-- Project Basics
-  - Basic YT
-  - Triggering
 - Lab 1 - The Basics
   - **ALL** the properties
   - Chart formatting, grouping
   - Triggering
-  - Marker table
+  - Layering
 - Lab 2 - Scope Server
   - Headless data acquisition
   - Conversion tool
-- Lab 3
-- Lab 4 - New charts!
+- Lab 3 - New Chart Types!
   - Array time chart
   - Table
 
@@ -31,7 +27,10 @@ Open the solution. The PLC project is a simple reversing motion sequence. Activa
 
 Arrange the windows so that all trends are visible, and record some data.
 
-#### Observe:
+#### ALL the Properties:
+
+With such a feature packed tool like Scope, where the heck do you find anything? Knowing how to navigate a project <u>hierarchy</u>, and generally getting familiar with *what goes where* makes all the difference.
+
 - Project Properties
   - Save/record
   - View detail
@@ -48,7 +47,7 @@ Move the `AxisState` channel up to the Position chart. When sharing an Axis Grou
 
 #### Triggering
 
-Triggers are a way to automate certain behavior in Scope — most commonly, to start recording.
+Triggers are a way to automate certain behavior in Scope — most commonly, to start recording or set markers.
 
 - Add a new Channel Trigger Set
   - In the Group, set the Trigger Action to **Start Record**
@@ -72,18 +71,26 @@ For an analog trigger, let's say we only want to see when the axis is moving in 
 
 #### Layering
 
-Layering is a way to overlay and visually compare how a signal changes over time. It is particularly useful with cyclic data like we are analyzing here.
+We have seend how easy it is to compare two different channels with a YT chart in Scope (like `SetPos` vs `ActPos`). But, what if we need to compare `ActPos` *with itself* over time? Layering is a convenient way to visualize the same Y-value channel over different time snapshots. It is particularly useful with cyclic data (like we are analyzing here).
 
-- Hide all channels (via toggling visibility) on your position chart *except* for `ActPos`
-- Record 3 or 4 full cycles
-- Create two new markers (right-click Project -> **New Time Marker**)
-  - Put them on either side of the last full peak in the chart
-  - Try to get the markers at the lowest Y-point on both sides of the peak; equidistant from the high point
-- Right-click the project again and this time open the **Layer Editor**
-- Select the appropriate YT Chart in the Layer editor, and set the start/end times to the respective markers.
-  - Note: If you do not have a Scope Pro license, you will have to manually copy/paste the timestamps from the marker properties.
+>You *can* create a layer chart without a Scope Pro license, but functionality is very limited.
+
+- Create a YT Chart with `ActPos` and `nSeq`
+- Create a simple **Set Mark** trigger on `nSeq`. You want to capture a full position cycle.
+  - ❓ Ideally we want to capture "valley-to-valley" with the trigger points. What threshold value should the trigger channel have?
+- Once you figure that out, record for a handful of cycles
+- Right-click the project and open the **Layer Editor**
+- Select the appropriate YT Chart in the Layer editor, and set the start/end times to *the last two trigger events*
+  - Start point = second to event, End point = last event
+  - Note: If you do not have a Scope Pro license, you will have to manually copy/paste the timestamp values. You can get them from from the Trigger Window.
 - Click the green '+' to add a chart layer, and then change it to an 'Echo layer' via the goofy looking button next to the eye.
 - Set the echo amount and echo duration
-  - Duration should be ~4.860s. You can calculate it by subtracting your marker times.
+  - Echo Amount ≈ # of cycles on your chart
+  - Duration ≈ 4.860s. You can calculate it by subtracting your marker times.
+- Zoom in on the last cycle peak position. Change the Echo layer colors to differentiate them.
 
-Observe the previous cycles overlayed with the latest. Notice that you can also use triggers as start/end points.
+Observe the previous cycles overlayed with the latest. Imagine a scenario where this could be a helpful analysis or troubleshooting tool.
+
+## Lab 2 - Scope Server
+
+## Lab 3 - New Chart Types!
