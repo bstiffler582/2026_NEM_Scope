@@ -6,12 +6,4 @@
     <Name>Scopes</Name>
     <RootNamespace>ArrayTime Scope Project1</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="Scope Project1.tcscopex">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Scope Project2.tcscopex">
-      <SubType>Content</SubType>
-    </Content>
-  </ItemGroup>
 </Project>
