@@ -3,97 +3,11 @@
   <POU Name="P_ScopeServer" Id="{a56923be-0395-4c71-a7f4-1123c8bb09bb}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM P_ScopeServer
 VAR
-	// paths
-	sScopeConfigFile 		: STRING(255) := 'C:\repos\2026_NEM_Scope\Labs\Scope Project1.tcscopex';
-	sScopeDataPath 			: STRING(255) := 'C:\repos\2026_NEM_Scope\Recordings\';
-	sOutputFile				: STRING;
-	
-	bStartRecord			: BOOL := FALSE;
-	fbScopeServerControl	: FB_ScopeServerControl;
-    eReqState				: E_ScopeServerState := E_ScopeServerState.SCOPE_SERVER_IDLE;
-	
-	fbTimer					: TON;
-    bRecordTimer			: BOOL;
-    nState					: UDINT;
-	nCount					: DINT := 1;
-	
-	fbStartExport			: NT_StartProcess;
-	bConvertCsv				: BOOL;
-	bNtStart				: BOOL;
-	sCmd					: STRING(255);
+
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[fbScopeServerControl(
-	sNetId:='',
-	eReqState:= eReqState,
-	sConfigFile:= sScopeConfigFile,
-	sSaveFile:= CONCAT(sScopeDataPath, sOutputFile),
-	tTimeout:= T#10S);
-	
-fbTimer(IN:=bRecordTimer, PT:=T#10S);
-
-CASE nState OF
-0:
-    eReqState := E_ScopeServerState.SCOPE_SERVER_START;
-    nState := 10;
-10:
-    IF fbScopeServerControl.bDone AND bStartRecord THEN
-		sOutputFile := CONCAT(TO_STRING(nCount), '.svdx');
-        bRecordTimer := TRUE;
-        nState := 20;
-    END_IF
-20:
-    IF fbTimer.Q THEN
-        eReqState := E_ScopeServerState.SCOPE_SERVER_SAVE;
-        bRecordTimer := FALSE;
-        nState := 30;
-    END_IF
-30:
-    IF fbScopeServerControl.bDone THEN
-        eReqState := E_ScopeServerState.SCOPE_SERVER_DISCONNECT;
-		bStartRecord := FALSE;
-		nCount := nCount + 1;
-		
-		IF bConvertCsv THEN
-			nState := 40;
-		ELSE
-			nState := 0;
-		END_IF
-    END_IF
-
-40:
-	// build command
-	// example: "svd=C:\Temp\DataFiles\ScopeOutput.svdx" target=C:\Temp\DataFiles\ScopeExport.csv silent
-	sCmd := '"svd=';
-	sCmd := CONCAT(sCmd, sScopeDataPath);
-	sCmd := CONCAT(sCmd, sOutputFile);
-	sCmd := CONCAT(sCmd, '" target=');
-	sCmd := CONCAT(sCmd, sScopeDataPath);
-	sCmd := CONCAT(sCmd, 'export.csv silent');
-	
-	bNtStart := TRUE;
-	nState := 50;
-	
-50:
-	IF NOT fbStartExport.BUSY THEN
-		bNtStart := FALSE;
-		nState := 0;
-	END_IF
-		
-END_CASE
-
-fbStartExport(
-		NETID		:= '', 
-		PATHSTR		:= 'C:\Program Files (x86)\Beckhoff\TwinCAT\Functions\TE130x-Scope-View\TC3ScopeExportTool.exe', 
-		DIRNAME		:= 'C:\Program Files (x86)\Beckhoff\TwinCAT\Functions\TE130x-Scope-View', 
-		COMNDLINE	:= sCmd, 
-		START		:= bNtStart, 
-		TMOUT		:= T#10S, 
-		BUSY		=> , 
-		ERR			=> , 
-		ERRID		=> );
-]]></ST>
+      <ST><![CDATA[]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

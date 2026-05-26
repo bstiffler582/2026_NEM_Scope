@@ -8,8 +8,8 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[P_ReverseSequence();
-P_ScopeServer();
-P_ScannerSim();]]></ST>
+//P_ScopeServer();
+//P_ScannerSim();]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>
